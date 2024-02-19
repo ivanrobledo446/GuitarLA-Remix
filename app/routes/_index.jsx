@@ -1,36 +1,74 @@
-export const meta = () => {
-  return [{ title: "New Remix App" }];
-};
+import { useLoaderData } from '@remix-run/react'
+import { getGuitarras } from '../API/guitarras.server'
+import { getPosts } from '../API/posts.server'
+import { getCurso } from '../API/curso.server' 
+import ListadoGuitarras from '../components/listado_guitarras'
+import ListadoPosts from '../components/listado_posts'
+import Curso from '../components/curso'
+import stylesGuitarras from '../styles/guitarras.css'
+import stylesPosts from '../styles/blog.css'
+import stylesCurso from '../styles/curso.css'
 
-export default function Index() {
-  return (
-    <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.4" }}>
-      <h1>Welcome to Remix</h1>
-      <ul>
-        <li>
-          <a
-            target="_blank"
-            href="https://remix.run/tutorials/blog"
-            rel="noreferrer"
-          >
-            15m Quickstart Blog Tutorial
-          </a>
-        </li>
-        <li>
-          <a
-            target="_blank"
-            href="https://remix.run/tutorials/jokes"
-            rel="noreferrer"
-          >
-            Deep Dive Jokes App Tutorial
-          </a>
-        </li>
-        <li>
-          <a target="_blank" href="https://remix.run/docs" rel="noreferrer">
-            Remix Docs
-          </a>
-        </li>
-      </ul>
-    </div>
-  );
+export function meta(){
+
 }
+
+export function links(){
+  return[
+    {
+      rel: 'stylesheet',
+      href: stylesGuitarras
+    },
+    {
+      rel: 'stylesheet',
+      href: stylesPosts
+    },
+    {
+      rel: 'stylesheet',
+      href: stylesCurso
+    }
+  ]
+}
+
+export async function loader(){
+
+  const [guitarras, posts, curso] = await Promise.all([
+    getGuitarras(),
+    getPosts(),
+    getCurso()
+  ])
+
+  return {
+    guitarras: guitarras.data,
+    posts: posts.data,
+    curso: curso.data
+  }
+}
+
+function Index() {
+
+  const datos = useLoaderData()
+  const { guitarras, posts, curso} = datos
+
+  return (
+    <>
+      <main className='contenedor'>
+        <ListadoGuitarras
+          guitarras={guitarras}
+        />
+      </main>
+
+      <Curso
+        curso={curso.attributes}
+      />
+       
+      <section className='contenedor'>
+        <ListadoPosts
+          posts={posts}
+        />
+      </section>
+    </>
+  )
+}
+
+export default Index
